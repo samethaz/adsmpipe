@@ -1,0 +1,501 @@
+ 
+International Business Machines, Armonk, New York 10504
+ 
+IBM PROGRAM LICENSE AGREEMENT:
+ 
+THIS IS AN AGREEMENT BETWEEN YOU AND INTERNATIONAL BUSINESS MACHINES
+CORPORATION.  YOU SHOULD CAREFULLY READ THE FOLLOWING TERMS AND CONDITIONS.
+IF YOU USE THE FILES, YOU ACCEPT THE TERMS AND CONDITIONS LISTED BELOW:
+ 
+COPYRIGHT:
+ 
+The Program is licensed not sold.  International Business Machines Corporation
+or the applicable IBM country organization (IBM) grants you a license for
+the Program only in the country where you obtained the Program.  You obtain
+no rights other than those granted you under this license.  The term "Program"
+means the original and all whole or partial copies of it, including modified
+copies or portions merged into other programs, and all related electronic
+materials ("documentation").
+ 
+IBM retains title to the Program.  IBM owns, or has licensed from the owner,
+copyrights in the Program.  The Program is protected by United States copyright
+laws.  You are responsible for the selection of the Program and for the
+installation of, use of, and results obtained from, the Program.
+ 
+GRANT OF LICENSE:
+ 
+IBM grants you the non-exclusive and non-transferable right to:
+  1. Use the Program on only one machine at any one time, and
+  2. Make one copy of the Program solely for backup purposes or archival
+     purposes.  You must reproduce the copyright notice(s) on each copy of
+     the Program.  Except as provided in this agreement, you may not copy the
+     documentation accompanying this agreement.
+ 
+YOU MAY NOT:
+  1. Use, copy, or modify the Program, except as provided by this license,
+  2. Merge the Program, except as described in the documentation,
+  3. Reverse assemble or reverse compile the Program; or
+  4. Rent, lease, sell, sublicense, assign or otherwise transfer the Program.
+ 
+DISCLAIMER OF WARRANTY:
+ 
+The Program and documentation are provided "AS IS".  IBM MAKES NO WARRANTY,
+EXPRESS OR IMPLIED, WITH RESPECT TO THE PROGRAM INCLUDING THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE
+RISK ARISING OUT OF USE OR PERFORMANCE OF THE PROGRAM AND DOCUMENTATION REMAINS
+WITH YOU.
+ 
+Some jurisdictions do not allow the exclusion of implied warranties, so the
+above exclusion may not apply to you.
+ 
+IN NO EVENT WILL IBM BE LIABLE FOR ANY LOST PROFITS, LOST SAVINGS, INCIDENTAL
+DAMAGES OR OTHER ECONOMIC CONSEQUENTIAL DAMAGES, EVEN IF IBM OR ITS AUTHORIZED
+SUPPLIER HAD BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.  IN ADDITION, IBM
+WILL NOT BE LIABLE FOR ANY DAMAGES CLAIMED BY YOU BASED ON ANY THIRD PARTY
+CLAIM.
+ 
+Some jurisdictions do not allow the exclusion or limitation for consequential
+or incidental damages, so the above may not apply to you.
+ 
+GENERAL:
+ 
+You may terminate your license at any time.  IBM may terminate your license
+if you fail to comply with the terms and conditions of this license. In
+either event, you must destroy all your copies of the Program.  You are
+responsible for payment of any taxes, including personal property taxes,
+resulting from this license.  Neither party may bring an action, regardless of
+form, more than two years after the cause of action arose.  If you acquired the
+Program in the United States, this license is governed by the laws of the State
+of New York.  If you acquired the program in Canada, this license is governed
+by the laws of the Province of Ontario.  Otherwise, this license is governed
+by the laws of the country in which you acquired the Program.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  1.0  ADSMPIPE - RAW LOGICAL VOLUME BACKUPS WITH THE API
+  _______________________________________________________
+ 
+ 
+ 
+ 
+ 
+                      This appendix describes a package we updated. It was
+                      originally  written by Tim Bell from IBM
+                      High Energy Physics support, IBM Switzerland.
+                      This package, adsmpipe, is a straightforward utilization
+                      of the ADSM API which provides archive, backup, retrieve
+                      and restore facilities for any data that can be piped
+                      into it.  It has been modified to add a password change
+                      facility.  As discussed in "Using ADSM to Back Up 
+                      Databases" adsmpipe is provided as an AS-IS utility
+                      and is not supported.  ADSM development is providing
+                      additional testing of this utility and plans to support
+                      it as a sample ADSM API application 1H96.
+ 
+                      In the past it was not possible for ADSM to directly
+                      read a raw logical volume.  You could use an RDBMS backup
+                      utility (which used the ADSM API) to send database data
+                      stored on a raw logical volume to ADSM, or you could create
+                      a file, using either a database utility or the AIX dd
+                      command, and then use ADSM commands to back up the file. 
+ 
+                      adsmpipe provides a direct interface between the AIX standard
+                      input file and ADSM.  Any data that can be sent to the           
+                      standard input of adsmpipe is sent on th ADSM through
+                      the ADSM API.
+
+                      adsmpipe aids in the backup of databases installed on raw
+                      devices.  As shown in Figure 2, adsmpipe reads raw
+                      devices and sends the data to ADSM using the ADSM API.
+                      It is an offline, full backup alternative.  It is
+                      similar to using the dd command except that an   
+                      intermediate file is not created.  adsmpipe should be
+                      used only if no other better API alternative is
+                      available.
+                
+                      The adsmpipe code is supplied in a tar format file on a
+                      diskette in the back of the Redbook "Using ADSM to Back
+                      Up Databases".  The code was written
+                      to work with ADSM Version 1.2 API but has also been
+                      tested with Version 2.1 of the API.  Unless you are
+                      running a Version 1 backup/archive client, we strongly
+                      recommend you use the Version 2.1 API.
+ 
+                      Before you can install adsmpipe you must have the ADSM
+                      API installed as well as a C compiler, as the code
+                      is provided as source code. 
+ 
+ 
+  1.1  INSTALLATION
+  _________________
+ 
+                      To install the adsmpipe code requires the following steps.
+ 
+                      1.  Create a directory for the adsmpipe code.  We suggest
+                          /usr/adsmpipe.  The code requires approximately 4M of
+                          space.
+ 
+                      2.  Insert the diskette, copy the tar file and then
+                          unpack it.
+ 
+                      3.  Compile the Source code
+ 
+                          You now need to compile the adsmpipe program using
+                          the MAKE file provided.  Figure 2 shows
+                          this.
+ 
+  +---------------------------------------------------------------------------+
+  |                                                                           |
+  |    >cd /usr/adsmpipe                                                      |
+  |    >tar -b20 -xvf /dev/rfd0 adsmpipe.tar.Z                                |
+  |     x adsmpipe.tar.Z, 2652061 bytes, 5180 media blocks.                   |
+  |     tar: There are 2880 blocks on /dev/rfd0.                              |
+  |     tar: Mount next media on device /dev/rfd0 and press return.           |
+  |                                                                           |
+  |     tar: Proceeding to device /dev/rfd0.                                  |
+  |    >uncompress adsmpipe.tar.Z                                             |
+  |    >tar -xvf adsmpipe.tar                                                 |
+  |     x aix/ver1/aixapi.v1r2m7.README, 968 bytes, 2 media blocks.           |
+  |     x aix/ver1/aixapi.v1r2m7.smit, 665600 bytes, 1300 media blocks.       |
+  |     x aix/ver2/libApiDS.a, 427682 bytes, 836 media blocks.                |
+  |     x aix/ver2/dscameng.txt, 268608 bytes, 525 media blocks.              |
+  |     x aix/ver2/dsmapitca, 148698 bytes, 291 media blocks.                 |
+  |     x aix/adsmpipe/Makefile, 272 bytes, 1 media blocks.                   |
+  |     x aix/adsmpipe/README, 26626 bytes, 53 media blocks.                  |
+  |     x aix/adsmpipe/adsmblib.c, 31446 bytes, 62 media blocks.              |
+  |     x aix/adsmpipe/adsmpipe.c, 7185 bytes, 15 media blocks.               |
+  |     x aix/db2bkdel/db2bkdel, 34696 bytes, 68 media blocks.                |
+  |     x solaris/ver1/sunapi.v1r2m7.README, 424 bytes, 1 media blocks.       |
+  |     x solaris/ver1/sunapi.v1r2m7.tar.Z, 812453 bytes, 1587 media blocks.  |
+  |     x solaris/ver2/dscameng.txt, 268608 bytes, 525 media blocks.          |
+  |     x solaris/ver2/dsmapitca, 217032 bytes, 424 media blocks.             |
+  |     x solaris/ver2/libApiDS.so.1.sol2, 393680 bytes, 769 media blocks.    |
+  |     x solaris/adsmpipe/Makefile, 381 bytes, 1 media blocks.               |
+  |     x solaris/adsmpipe/README, 27426 bytes, 54 media blocks.              | 
+  |     x solaris/adsmpipe/adsmblib.c, 31446 bytes, 62 media blocks.          |
+  |     x solaris/adsmpipe/adsmpipe.c, 7185 bytes, 15 media blocks.           |
+  |    >make adsmpipe                                                         |
+  |     make                                                                  |
+  |        cc -c adsmpipe.c                                                   |
+  |        cc -c adsmblib.c                                                   |
+  |        cc -o adsmpipe adsmpipe.o adsmblib.o libApiDS.a -L.                |
+  |                                                                           |
+  +---------------------------------------------------------------------------+
+  Figure 2. Compiling the ADSMPIPE code.
+ 
+ 
+ 
+  1.2  RUNNING ADSMPIPE
+  _____________________
+ 
+                      The program usage is similar to many others.  Data to be
+                      stored goes to standard input.  Data to be retrieved
+                      comes from standard output.
+ 
+                      To make it easier to track uses of the adsmpipe program,
+                      you can associate a description of up to 256 characters
+                      with a file.
+ 
+                      For files greater than 1 Mb you must give ADSM
+                      information about the size of your file.  This is used to
+                      ensure that ADSM has space available for the data to be
+                      sent.  The limit is given using -l.  For example,
+ 
+                           tar -cvf- $HOME | adsmpipe -c -f 'myhome.tar' -l 90M
+ 
+                      will ensure that space for 90Mb is available.  If you do
+                      not give the size argument then the message
+ 
+                           error in dsmSendData. rcMsg=(157)    The transaction will be aborted.
+ 
+                      may be produced.
+ 
+                      Figure 3 shows the program used to back up,
+                      query and restore a raw logical volume.  In this case the
+                      volume is a file system created specifically for this
+                      purpose.  It could, however, be any logical volume.  You
+                      could, for example, back up your boot logical volume!
+ 
+                      In this example we use the AIX DF command to show the
+                      usage of the logical volume and the AIX LSVG command to
+                      show that the volume is not in use when the adsmpipe
+                      program is run.  The MOUNT and UNMOUNT commands are used
+                      to start and stop using the file system.
+ 
+                      NOTE:  When you are restoring a journalled file system
+                      (jfs) that you have backed up as a raw logical volume,
+                      you must first re-create that jfs using SMIT.  This will
+                      create the basic jfs structure and the appropriate
+                      entries in /ETC/FILESYSTEMS.  You can then restore to the
+                      created logical volume and mount your file system.
+ 
+                      For database backup you must make sure that your database
+                      has been shutdown.
+ 
+ 
+ 
+  +---------------------------------------------------------------------------+
+  |                                                                           |
+  |   >mount /pipetest                                                        |
+  |   >df /pipetest                                                           |
+  |   Filesystem    Total KB    free %used   iused %iused Mounted on          |
+  |   /dev/lv17         4096    1264   69%      45     4% /pipetest           |
+  |                                                                           |
+  |                                                                           |
+  |   >lsvg -l rootvg | grep pipetest                                         |
+  |   lv17                jfs        1     1    1    OPEN/SYNCD    /pipetest  |
+  |                                                                           |
+  |                                                                           |
+  |   >unmount /pipetest                                                      |
+  |   >lsvg -l rootvg | grep pipetest                                         |
+  |   lv17                jfs        1     1    1    CLOSED/SYNCD  /pipetest  |
+  |                                                                           |
+  |                                                                           |
+  |   >adsmpipe -cvf pipetest -l 8M < /dev/rlv17                              |
+  |   adsm: about to send data to ADSM                                        |
+  |   adsm: sent 262144 bytes to ADSM                                         |
+  |   adsm: sent 524288 bytes to ADSM                                         |
+  |   :                                                                       |
+  |   adsm: sent 3932160 bytes to ADSM                                        |
+  |   adsm: sent 4194304 bytes to ADSM                                        |
+  |   adsm: committing transaction                                            |
+  |                                                                           |
+  |   >mount /pipetest                                                        |
+  |   >rm /pipetest/*                                                         |
+  |   >ls -al /pipetest                                                       |
+  |   total 16                                                                |
+  |   drwxr-sr-x   2 sys      sys         1024 Sep 25 13:43 .                 |
+  |   drwxr-xr-x  24 bin      bin         1024 Sep 25 13:34 ..                |
+  |                                                                           |
+  |   >df /pipetest                                                           |
+  |   Filesystem    Total KB    free %used   iused %iused Mounted on          |
+  |   /dev/lv17         4096    3936    3%      16     1% /pipetest           |
+  |                                                                           |
+  |                                                                           |
+  |   >unmount /pipetest                                                      |
+  |   >adsmpipe -tvf pipetest                                                 |
+  |   root     (A) 1995/09/25 13:42:04 /pipetest                              |
+  |                                                                           |
+  |   >adsmpipe -xvf pipetest > /dev/rlv17                                    |
+  |   adsm: about to get data                                                 |
+  |   adsm: read 262144 bytes from ADSM                                       |
+  |   adsm: read 524288 bytes from ADSM                                       |
+  |   :                                                                       |
+  |   adsm: read 3932160 bytes from ADSM                                      |
+  |   adsm: read 4194304 bytes from ADSM                                      |
+  |   adsm: read completed                                                    |
+  |                                                                           |
+  |   >mount /pipetest                                                        |
+  |   >df /pipetest                                                           |
+  |   Filesystem    Total KB    free %used   iused %iused Mounted on          |
+  |   /dev/lv17         4096    1264   69%      45     4% /pipetest           |
+  |                                                                           |
+  |                                                                           |
+  |                                                                           |
+  +---------------------------------------------------------------------------+
+  Figure 3. ADSMPIPE Example Session.
+ 
+                      Figure 4 and Figure 5 show an example of a
+                      backup of a real database logical volume.  Figure 4
+                      on shows the backup of the volume.  Figure 5
+                      shows the deletion of the volume and its restore.
+                      In this case the database is Sybase.
+ 
+                      NOTE:  Some of the messages issued during this example
+                      have been edited out.
+ 
+                      This Sybase instance has been installed with two logical
+                      volumes, /DEV/RSYBDB and /DEV/RSYBSP.  The sample
+                      database PUBS2 has been installed.
+ 
+  +---------------------------------------------------------------------------+
+  |                                                                           |
+  |   1> select au_id, au_fname, au_lname from authors                        |
+  |   2> go                                                                   |
+  |    au_id       au_fname             au_lname                              |
+  |    ----------- -------------------- --------------------------------------|-
+  |    172-32-1176 Johnson              White                                 |
+  |    213-46-8915 Marjorie             Green                                 |
+  |    238-95-7766 Cheryl               Carson                                |
+  |         :                                                                 |
+  |    899-46-2035 Anne                 Ringer                                |
+  |    998-72-3567 Albert               Ringer                                |
+  |                                                                           |
+  |   (23 rows affected)                                                      |
+  |   1> shutdown SYB_BACKUP                                                  |
+  |   2> go                                                                   |
+  |   Backup Server: 3.48.1.1: The Backup Server will go down immediately.    |
+  |   Terminating sessions.                                                   |
+  |   1> shutdown                                                             |
+  |   2> go                                                                   |
+  |   Server SHUTDOWN by request.                                             |
+  |   The SQL Server is terminating this process.                             |
+  |   DB-LIBRARY error:                                                       |
+  |           Unexpected EOF from SQL Server.                                 |
+  |   > exit                                                                  |
+  |   # ./adsmpipe -cvf /lvdump -l 20M < /dev/rsybdb                          |
+  |   adsm: about to send data to ADSM                                        |
+  |   adsm: sent 262144 bytes to ADSM                                         |
+  |   adsm: sent 524288 bytes to ADSM                                         |
+  |   adsm: sent 786432 bytes to ADSM                                         |
+  |   :                                                                       |
+  |   adsm: sent 20709376 bytes to ADSM                                       |
+  |   adsm: sent 20971520 bytes to ADSM                                       |
+  |   adsm: committing transaction                                            |
+  |   # lsvg -l rootvg | grep sybdb                                           |
+  |   sybdb               jfs        5     5    1    closed/syncd  N/A        |
+  |                                                                           |
+  +---------------------------------------------------------------------------+
+  Figure 4. ADSMPIPE Database Logical Volume Backup.
+ 
+ 
+  +---------------------------------------------------------------------------+
+  |                                                                           |
+  |   # rmlv -f sybdb                                                         |
+  |   rmlv: Logical volume sybdb is removed.                                  |
+  |   # mklv -y'sybdb' rootvg 5                                               |
+  |   sybdb                                                                   |
+  |   # chown sybase /dev/sybdb                                               |
+  |   # chown sybase /dev/rsybdb                                              |
+  |   # ./adsmpipe -xvf /lvdump > /dev/rsybdb                                 |
+  |   adsm: about to get data                                                 |
+  |   adsm: read 262144 bytes from ADSM                                       |
+  |   adsm: read 524288 bytes from ADSM                                       |
+  |   adsm: read 786432 bytes from ADSM                                       |
+  |   :                                                                       |
+  |   adsm: read 20709376 bytes from ADSM                                     |
+  |   adsm: read 20971520 bytes from ADSM                                     |
+  |   adsm: read completed                                                    |
+  |   # su - sybase                                                           |
+  |   $ cd install                                                            |
+  |   $ startserver -f RUN_sybase                                             |
+  |   00:95/10/10 15:20:35.69 kernel  Using config area of disk for boot infor|ation
+  |   00:95/10/10 15:20:35.79 kernel  Using config area from primary master de|ice.
+  |     :                                                                     |
+  |   00:95/10/10 15:20:43.67 server  Recovery complete.                      |
+  |   00:95/10/10 15:20:43.75 server  SQL Server's default sort order is:     |
+  |   00:95/10/10 15:20:43.83 server          'bin_iso_1' (ID = 50)           |
+  |   00:95/10/10 15:20:43.91 server  on top of default character set:        |
+  |   00:95/10/10 15:20:43.99 server          'iso_1' (ID = 1).               |
+  |   $ startserver -f RUN_SYB_BACKUP                                         |
+  |   Backup Server/10.0.2/P/RS6000SMP/AIX 3.2.5/1/OPT/Wed May 24 10:43:53 PDT|1995
+  |   Confidential property of Sybase, Inc.                                   |
+  |   (c) Copyright Sybase, Inc.  1987, 1995                                  |
+  |   All rights reserved.                                                    |
+  |                                                                           |
+  |   Logging Backup Server messages in file '/u/sybase/install/backup.log'   |
+  |   $ isql -Usa -P -Ssybase                                                 |
+  |   1> use pubs2                                                            |
+  |   2> go                                                                   |
+  |   1> select au_id, au_fname, au_lname from authors                        |
+  |   2> go                                                                   |
+  |    au_id       au_fname             au_lname                              |
+  |    ----------- -------------------- --------------------------------------|-
+  |    172-32-1176 Johnson              White                                 |
+  |    213-46-8915 Marjorie             Green                                 |
+  |    238-95-7766 Cheryl               Carson                                |
+  |         :                                                                 |
+  |    899-46-2035 Anne                 Ringer                                |
+  |    998-72-3567 Albert               Ringer                                |
+  |                                                                           |
+  |   (23 rows affected)                                                      |
+  |                                                                           |
+  +---------------------------------------------------------------------------+
+  Figure 5. ADSMPIPE Database Logical Volume Restore.
+ 
+ 
+ 
+  1.3  CHANGING THE ADSM PASSWORD
+  _______________________________
+ 
+                      You can use ADSMPIPE to change the ADSM client node
+                      password.  You will only be able to change the password
+                      if you are running ADSMPIPE as root.
+ 
+ 
+  1.3.1  PASSWORDACCESS=PROMPT
+ 
+                      If you have the passwordaccess parameter set to prompt
+                      then you use the -p option as follows:
+ 
+                      o   "adsmpipe -p password"
+ 
+                          This logs onto the server only.
+ 
+                      o   "adsmpipe -p oldpw/newpw/newpw"
+ 
+                          This changes the password from oldpw to newpw.
+ 
+                      o   "adsmpipe -cf /adsmpipe -p password < filename"
+ 
+                          This logs onto the server and backs up the file.
+ 
+ 
+  1.3.2  PASSWORDACCESS=GENERATE
+ 
+                      If you have the passwordaccess parameter set to generate
+                      then you use the -p option as follows:
+ 
+                      o   "adsmpipe -p password"
+ 
+                          This generates the password file on the client.
+ 
+                      o   "adsmpipe -p oldpw/newpw/newpw"
+ 
+                          This changes the password from oldpw to newpw and
+                          generates the password file if it does not already
+                          exist.  You should not need to generate the file this
+                          way.  Use adsmpipe -p password.
+ 
+                      o   "adsmpipe -cf /adsmpipe -p password < filename"
+ 
+                          This generates the password file and backs up the
+                          file.
+ 
+                      NOTE:  When you have passwordaccess set to generate you
+                      will only need to initially set the password because ADSM
+                      will change it automatically when it expires.
+ 
+                      The full set of options for ADSMPIPE is shown in Figure 6.
+ 
+  +---------------------------------------------------------------------------+
+  |                                                                           |
+  |     adsmpipe -[tcxd] -f<filename> [-l<size>][-v][-s<filespace>]           |
+  |                                                                           |
+  |     Create, extract or lists files in the ADSM pipe backup area           |
+  |        -t      Lists files in pipe backup area matching the pattern       |
+  |        -c      Creates a file in pipe backup area.                        |
+  |                 Data comes from standard input.                           |
+  |        -x      Extracts a file in pipe backup.                            |
+  |                 Data goes to standard output.                             |
+  |        -d      Deletes the file from active store.                        |
+  |                                                                           |
+  |        -B      Store data in the backup space of the ADSM server (Default)|
+  |        -A      Store data in the archive space of the ADSM server         |
+  |                                                                           |
+  |        -f <file>                                                          |
+  |                Provides filename for create, and extract operations.      |
+  |                 For list operations, the filename can be a pattern        |
+  |        -l <size>                                                          |
+  |                Estimated size of data in bytes when creating.             |
+  |        -p <oldpw/newpw/newpw>                                             |
+  |                Changes the password from oldpw to newpw.                  |
+  |           <passwd>                                                        |
+  |                Initialises password file for ADSM API with passwd.        |
+  |        -v      Verbose                                                    |
+  |        -n <count>                                                         |
+  |                File number to retrieve if multiple versions               |
+  |        -s <filespace>                                                     |
+  |                Specify file space (default "/adsmpipe")                   |
+  |                                                                           |
+  +---------------------------------------------------------------------------+
+  Figure 6. ADSMPIPE Command Arguments.
+ 
+ 
